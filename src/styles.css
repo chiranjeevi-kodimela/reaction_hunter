@@ -37,3 +37,15 @@ body {
   cursor: pointer;
   
 }
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.stats p {
+  margin: 0;
+  font-size: 18px;
+}
