@@ -1,7 +1,32 @@
 import { useEffect, useState } from "react";
 
+const difficultySettings = {
+  easy: {
+    label: "Easy",
+    targetSize: 60,
+    lives: 5,
+    time: 30,
+  },
+
+  medium: {
+    label: "Medium",
+    targetSize: 45,
+    lives: 3,
+    time: 30,
+  },
+
+  hard: {
+    label: "Hard",
+    targetSize: 30,
+    lives: 2,
+    time: 30,
+  },
+};
+
 function App() {
   const [gameState, setGameState] = useState("ready");
+
+  const [difficulty, setDifficulty] = useState("easy");
 
   const [position, setPosition] = useState({
     top: 200,
@@ -15,13 +40,21 @@ function App() {
   const [streak, setStreak] = useState(0);
   const [bestReaction, setBestReaction] = useState(null);
 
-  const [lives, setLives] = useState(3);
-
+  const [lives, setLives] = useState(5);
   const [timeLeft, setTimeLeft] = useState(30);
 
+  const settings = difficultySettings[difficulty];
+
   function getNewPosition() {
-    const newTop = Math.floor(Math.random() * 440);
-    const newLeft = Math.floor(Math.random() * 740);
+    const targetSize = settings.targetSize;
+
+    const newTop = Math.floor(
+      Math.random() * (500 - targetSize)
+    );
+
+    const newLeft = Math.floor(
+      Math.random() * (800 - targetSize)
+    );
 
     setPosition({
       top: newTop,
@@ -29,17 +62,21 @@ function App() {
     });
   }
 
+  function selectDifficulty(level) {
+    setDifficulty(level);
+  }
+
   function startGame() {
     setGameState("playing");
 
     setScore(0);
     setStreak(0);
-    setLives(3);
+
+    setLives(settings.lives);
+    setTimeLeft(settings.time);
 
     setReactionTime(null);
     setBestReaction(null);
-
-    setTimeLeft(30);
 
     getNewPosition();
 
@@ -62,7 +99,10 @@ function App() {
 
     setStreak((currentStreak) => currentStreak + 1);
 
-    if (bestReaction === null || reaction < bestReaction) {
+    if (
+      bestReaction === null ||
+      reaction < bestReaction
+    ) {
       setBestReaction(reaction);
     }
 
@@ -121,9 +161,42 @@ function App() {
 
       {gameState === "ready" && (
         <div className="menu">
-          <h2>Ready?</h2>
+          <h2>Choose Difficulty</h2>
 
-          <p>Click the target as fast as you can.</p>
+          <div className="difficulty-buttons">
+            <button
+              className={difficulty === "easy" ? "selected" : ""}
+              onClick={() => selectDifficulty("easy")}
+            >
+              Easy
+            </button>
+
+            <button
+              className={difficulty === "medium" ? "selected" : ""}
+              onClick={() => selectDifficulty("medium")}
+            >
+              Medium
+            </button>
+
+            <button
+              className={difficulty === "hard" ? "selected" : ""}
+              onClick={() => selectDifficulty("hard")}
+            >
+              Hard
+            </button>
+          </div>
+
+          <p>
+            Target: {settings.targetSize}px
+          </p>
+
+          <p>
+            Lives: {settings.lives}
+          </p>
+
+          <p>
+            Time: {settings.time}s
+          </p>
 
           <button onClick={startGame}>
             Start Game
@@ -170,6 +243,8 @@ function App() {
               style={{
                 top: `${position.top}px`,
                 left: `${position.left}px`,
+                width: `${settings.targetSize}px`,
+                height: `${settings.targetSize}px`,
               }}
               onClick={handleHit}
             ></div>
@@ -182,7 +257,13 @@ function App() {
           <h2>Game Over</h2>
 
           <p>
-            Final Score: <strong>{score}</strong>
+            Difficulty:{" "}
+            <strong>{settings.label}</strong>
+          </p>
+
+          <p>
+            Final Score:{" "}
+            <strong>{score}</strong>
           </p>
 
           <p>
@@ -196,6 +277,12 @@ function App() {
 
           <button onClick={startGame}>
             Play Again
+          </button>
+
+          <button
+            onClick={() => setGameState("ready")}
+          >
+            Change Difficulty
           </button>
         </div>
       )}
