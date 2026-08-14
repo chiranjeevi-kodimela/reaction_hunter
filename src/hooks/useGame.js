@@ -53,7 +53,7 @@ function useGame() {
   const [misses, setMisses] = useState(0);
 
   const [timeLeft, setTimeLeft] = useState(30);
-
+  const [targetTimeLeft, setTargetTimeLeft] = useState(0);
   const [feedback, setFeedback] = useState({
     type: "",
     message: "",
@@ -89,7 +89,7 @@ function useGame() {
     setMisses(0);
 
     setTimeLeft(settings.time);
-
+    setTargetTimeLeft(settings.targetTime);
     setReactionTime(null);
     setReactionTimes([]);
     setBestReaction(null);
@@ -247,6 +247,29 @@ function useGame() {
     };
   }, [gameState, targetKey, difficulty]);
 
+  useEffect(() => {
+    if (gameState !== "playing") {
+      return;
+    }
+
+    setTargetTimeLeft(settings.targetTime);
+
+    const countdown = setInterval(() => {
+      setTargetTimeLeft((currentTime) => {
+        if (currentTime <= 100) {
+          clearInterval(countdown);
+          return 0;
+        }
+
+        return currentTime - 100;
+      });
+    }, 100);
+
+    return () => {
+      clearInterval(countdown);
+    };
+  }, [gameState, targetKey, difficulty]);
+
   // Clear feedback after 1 second
   useEffect(() => {
     if (!feedback.message) {
@@ -315,7 +338,7 @@ function useGame() {
     misses,
 
     timeLeft,
-
+    targetTimeLeft,
     reactionTime,
     bestReaction,
     averageReaction,

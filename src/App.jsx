@@ -41,6 +41,7 @@ function App() {
           <GameBoard
             position={game.position}
             targetSize={game.settings.targetSize}
+            targetTime={game.targetTimeLeft}
             onHit={game.handleHit}
             onMiss={game.handleMiss}
           />
