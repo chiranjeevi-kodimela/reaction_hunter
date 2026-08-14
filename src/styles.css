@@ -9,6 +9,28 @@ body {
   color: white;
 }
 
+.menu {
+  margin-top: 100px;
+}
+
+.menu h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.menu p {
+  font-size: 18px;
+  margin-bottom: 25px;
+}
+
+.menu button {
+  padding: 12px 25px;
+  font-size: 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .game {
   min-height: 100vh;
   padding: 30px;

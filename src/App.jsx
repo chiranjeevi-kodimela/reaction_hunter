@@ -1,13 +1,15 @@
 import { useState } from "react";
 
 function App() {
+  const [gameState, setGameState] = useState("ready");
+
   const [position, setPosition] = useState({
     top: 200,
     left: 350,
   });
 
   const [reactionTime, setReactionTime] = useState(null);
-  const [startTime, setStartTime] = useState(Date.now());
+  const [startTime, setStartTime] = useState(null);
 
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -23,13 +25,28 @@ function App() {
       top: newTop,
       left: newLeft,
     });
+  }
+
+  function startGame() {
+    setGameState("playing");
+
+    setScore(0);
+    setStreak(0);
+    setLives(3);
+    setReactionTime(null);
+    setBestReaction(null);
+
+    getNewPosition();
 
     setStartTime(Date.now());
   }
 
   function handleHit(event) {
-    // Prevent the game area's click event from firing
     event.stopPropagation();
+
+    if (gameState !== "playing") {
+      return;
+    }
 
     const endTime = Date.now();
     const reaction = endTime - startTime;
@@ -45,45 +62,111 @@ function App() {
     }
 
     getNewPosition();
+
+    setStartTime(Date.now());
   }
 
   function handleMiss() {
-    setLives((currentLives) => currentLives - 1);
+    if (gameState !== "playing") {
+      return;
+    }
+
+    setLives((currentLives) => {
+      const newLives = currentLives - 1;
+
+      if (newLives <= 0) {
+        setGameState("gameover");
+      }
+
+      return newLives;
+    });
 
     setStreak(0);
 
     getNewPosition();
+
+    setStartTime(Date.now());
   }
 
   return (
     <div className="game">
       <h1>Reaction Hunter</h1>
 
-      <div className="stats">
-        <p>Score: {score}</p>
-        <p>Streak: {streak}</p>
-        <p>Lives: {"♥".repeat(lives)}</p>
+      {gameState === "ready" && (
+        <div className="menu">
+          <h2>Ready?</h2>
+          <p>Click the target as fast as you can.</p>
 
-        <p>
-          Best: {bestReaction !== null ? `${bestReaction} ms` : "--"}
-        </p>
+          <button onClick={startGame}>
+            Start Game
+          </button>
+        </div>
+      )}
 
-        <p>
-          Reaction:{" "}
-          {reactionTime !== null ? `${reactionTime} ms` : "Ready..."}
-        </p>
-      </div>
+      {gameState === "playing" && (
+        <>
+          <div className="stats">
+            <p>Score: {score}</p>
 
-      <div className="game-area" onClick={handleMiss}>
-        <div
-          className="target"
-          style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-          }}
-          onClick={handleHit}
-        ></div>
-      </div>
+            <p>Streak: {streak}</p>
+
+            <p>
+              Lives: {"♥".repeat(lives)}
+            </p>
+
+            <p>
+              Best:{" "}
+              {bestReaction !== null
+                ? `${bestReaction} ms`
+                : "--"}
+            </p>
+
+            <p>
+              Reaction:{" "}
+              {reactionTime !== null
+                ? `${reactionTime} ms`
+                : "Ready..."}
+            </p>
+          </div>
+
+          <div
+            className="game-area"
+            onClick={handleMiss}
+          >
+            <div
+              className="target"
+              style={{
+                top: `${position.top}px`,
+                left: `${position.left}px`,
+              }}
+              onClick={handleHit}
+            ></div>
+          </div>
+        </>
+      )}
+
+      {gameState === "gameover" && (
+        <div className="menu">
+          <h2>Game Over</h2>
+
+          <p>
+            Final Score: <strong>{score}</strong>
+          </p>
+
+          <p>
+            Best Reaction:{" "}
+            <strong>
+              {bestReaction !== null
+                ? `${bestReaction} ms`
+                : "--"}
+            </strong>
+          </p>
+
+          <button onClick={startGame}>
+            Play Again
+          </button>
+        </div>
+      )}
     </div>
   );
 }
