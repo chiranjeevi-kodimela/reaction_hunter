@@ -24,67 +24,47 @@ const difficultySettings = {
 };
 
 function useGame() {
-  const [gameState, setGameState] =
-    useState("ready");
+  const [gameState, setGameState] = useState("ready");
 
-  const [difficulty, setDifficulty] =
-    useState("easy");
+  const [difficulty, setDifficulty] = useState("easy");
 
   const [position, setPosition] = useState({
     top: 200,
     left: 350,
   });
 
-  const [reactionTime, setReactionTime] =
-    useState(null);
+  const [reactionTime, setReactionTime] = useState(null);
 
-  const [reactionTimes, setReactionTimes] =
-    useState([]);
+  const [reactionTimes, setReactionTimes] = useState([]);
 
-  const [startTime, setStartTime] =
-    useState(null);
+  const [startTime, setStartTime] = useState(null);
 
-  const [score, setScore] =
-    useState(0);
+  const [score, setScore] = useState(0);
 
-  const [streak, setStreak] =
-    useState(0);
+  const [streak, setStreak] = useState(0);
 
-  const [bestReaction, setBestReaction] =
-    useState(null);
+  const [bestReaction, setBestReaction] = useState(null);
 
-  const [lives, setLives] =
-    useState(5);
+  const [lives, setLives] = useState(5);
 
-  const [misses, setMisses] =
-    useState(0);
+  const [misses, setMisses] = useState(0);
 
-  const [timeLeft, setTimeLeft] =
-    useState(30);
+  const [timeLeft, setTimeLeft] = useState(30);
 
   // Feedback state
-  const [feedback, setFeedback] =
-    useState({
-      type: "",
-      message: "",
-    });
+  const [feedback, setFeedback] = useState({
+    type: "",
+    message: "",
+  });
 
-  const settings =
-    difficultySettings[difficulty];
+  const settings = difficultySettings[difficulty];
 
   function getNewPosition() {
-    const targetSize =
-      settings.targetSize;
+    const targetSize = settings.targetSize;
 
-    const newTop = Math.floor(
-      Math.random() *
-        (500 - targetSize)
-    );
+    const newTop = Math.floor(Math.random() * (500 - targetSize));
 
-    const newLeft = Math.floor(
-      Math.random() *
-        (800 - targetSize)
-    );
+    const newLeft = Math.floor(Math.random() * (800 - targetSize));
 
     setPosition({
       top: newTop,
@@ -128,8 +108,7 @@ function useGame() {
       return;
     }
 
-    const reaction =
-      Date.now() - startTime;
+    const reaction = Date.now() - startTime;
 
     setReactionTime(reaction);
 
@@ -139,27 +118,23 @@ function useGame() {
       message: `+1  ${reaction} ms`,
     });
 
-    setReactionTimes(
-      (currentTimes) => [
-        ...currentTimes,
-        reaction,
-      ]
-    );
+    setReactionTimes((currentTimes) => [...currentTimes, reaction]);
 
-    setScore(
-      (currentScore) =>
-        currentScore + 1
-    );
+    setScore((currentScore) => currentScore + 1);
 
-    setStreak(
-      (currentStreak) =>
-        currentStreak + 1
-    );
+    setStreak((currentStreak) => {
+      const newStreak = currentStreak + 1;
 
-    if (
-      bestReaction === null ||
-      reaction < bestReaction
-    ) {
+      if (newStreak % 5 === 0) {
+        setFeedback({
+          type: "streak",
+          message: `${newStreak} HIT STREAK!`,
+        });
+      }
+
+      return newStreak;
+    });
+    if (bestReaction === null || reaction < bestReaction) {
       setBestReaction(reaction);
     }
 
@@ -179,14 +154,10 @@ function useGame() {
       message: "MISS!",
     });
 
-    setMisses(
-      (currentMisses) =>
-        currentMisses + 1
-    );
+    setMisses((currentMisses) => currentMisses + 1);
 
     setLives((currentLives) => {
-      const newLives =
-        currentLives - 1;
+      const newLives = currentLives - 1;
 
       if (newLives <= 0) {
         setGameState("gameover");
@@ -209,17 +180,15 @@ function useGame() {
     }
 
     const timer = setInterval(() => {
-      setTimeLeft(
-        (currentTime) => {
-          if (currentTime <= 1) {
-            setGameState("gameover");
+      setTimeLeft((currentTime) => {
+        if (currentTime <= 1) {
+          setGameState("gameover");
 
-            return 0;
-          }
-
-          return currentTime - 1;
+          return 0;
         }
-      );
+
+        return currentTime - 1;
+      });
     }, 1000);
 
     return () => {
@@ -248,50 +217,30 @@ function useGame() {
   const averageReaction =
     reactionTimes.length > 0
       ? Math.round(
-          reactionTimes.reduce(
-            (total, time) =>
-              total + time,
-            0
-          ) /
-            reactionTimes.length
+          reactionTimes.reduce((total, time) => total + time, 0) /
+            reactionTimes.length,
         )
       : null;
 
-  const totalAttempts =
-    score + misses;
+  const totalAttempts = score + misses;
 
   const accuracy =
-    totalAttempts > 0
-      ? Math.round(
-          (score /
-            totalAttempts) *
-            100
-        )
-      : 0;
+    totalAttempts > 0 ? Math.round((score / totalAttempts) * 100) : 0;
 
   function getRating() {
     if (averageReaction === null) {
       return "No Data";
     }
 
-    if (
-      averageReaction < 300 &&
-      accuracy >= 90
-    ) {
+    if (averageReaction < 300 && accuracy >= 90) {
       return "LEGENDARY";
     }
 
-    if (
-      averageReaction < 400 &&
-      accuracy >= 80
-    ) {
+    if (averageReaction < 400 && accuracy >= 80) {
       return "EXCELLENT";
     }
 
-    if (
-      averageReaction < 500 &&
-      accuracy >= 70
-    ) {
+    if (averageReaction < 500 && accuracy >= 70) {
       return "GREAT";
     }
 
@@ -331,8 +280,7 @@ function useGame() {
     handleHit,
     handleMiss,
 
-    changeToReady: () =>
-      setGameState("ready"),
+    changeToReady: () => setGameState("ready"),
   };
 }
 

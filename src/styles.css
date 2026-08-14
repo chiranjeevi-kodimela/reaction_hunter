@@ -160,3 +160,10 @@ body {
   background: #2b0606;
   border: 2px solid #ff3333;
 }
+
+.feedback.streak {
+  color: #ffd700;
+  background: #332900;
+  border: 3px solid #ffd700;
+  font-size: 36px;
+}
