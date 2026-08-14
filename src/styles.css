@@ -55,7 +55,22 @@ body {
   border-radius: 50%;
   background: red;
   cursor: pointer;
-  
+}
+
+.target {
+  animation: targetAppear 0.15s ease;
+}
+
+@keyframes targetAppear {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .stats {
@@ -115,4 +130,33 @@ body {
   display: block;
   font-size: 24px;
   margin-top: 5px;
+}
+
+.feedback {
+  position: fixed;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  z-index: 99999;
+
+  font-size: 40px;
+  font-weight: bold;
+
+  padding: 12px 25px;
+  border-radius: 10px;
+
+  pointer-events: none;
+}
+
+.feedback.hit {
+  color: #00ff88;
+  background: #062b1c;
+  border: 2px solid #00ff88;
+}
+
+.feedback.miss {
+  color: #ff3333;
+  background: #2b0606;
+  border: 2px solid #ff3333;
 }

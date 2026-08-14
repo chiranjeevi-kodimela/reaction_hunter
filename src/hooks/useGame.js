@@ -62,6 +62,13 @@ function useGame() {
   const [timeLeft, setTimeLeft] =
     useState(30);
 
+  // Feedback state
+  const [feedback, setFeedback] =
+    useState({
+      type: "",
+      message: "",
+    });
+
   const settings =
     difficultySettings[difficulty];
 
@@ -104,6 +111,11 @@ function useGame() {
     setReactionTimes([]);
     setBestReaction(null);
 
+    setFeedback({
+      type: "",
+      message: "",
+    });
+
     getNewPosition();
 
     setStartTime(Date.now());
@@ -120,6 +132,12 @@ function useGame() {
       Date.now() - startTime;
 
     setReactionTime(reaction);
+
+    // SHOW HIT FEEDBACK
+    setFeedback({
+      type: "hit",
+      message: `+1  ${reaction} ms`,
+    });
 
     setReactionTimes(
       (currentTimes) => [
@@ -155,6 +173,12 @@ function useGame() {
       return;
     }
 
+    // SHOW MISS FEEDBACK
+    setFeedback({
+      type: "miss",
+      message: "MISS!",
+    });
+
     setMisses(
       (currentMisses) =>
         currentMisses + 1
@@ -178,6 +202,7 @@ function useGame() {
     setStartTime(Date.now());
   }
 
+  // Game timer
   useEffect(() => {
     if (gameState !== "playing") {
       return;
@@ -201,6 +226,24 @@ function useGame() {
       clearInterval(timer);
     };
   }, [gameState]);
+
+  // Remove feedback after 1 second
+  useEffect(() => {
+    if (!feedback.message) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setFeedback({
+        type: "",
+        message: "",
+      });
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [feedback]);
 
   const averageReaction =
     reactionTimes.length > 0
@@ -252,9 +295,7 @@ function useGame() {
       return "GREAT";
     }
 
-    if (
-      averageReaction < 700
-    ) {
+    if (averageReaction < 700) {
       return "GOOD";
     }
 
@@ -280,6 +321,8 @@ function useGame() {
     averageReaction,
 
     accuracy,
+
+    feedback,
 
     getRating,
 

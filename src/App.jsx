@@ -2,6 +2,7 @@ import StartScreen from "./components/StartScreen";
 import GameStats from "./components/GameStats";
 import GameBoard from "./components/GameBoard";
 import ResultsScreen from "./components/ResultsScreen";
+import Feedback from "./components/Feedback";
 
 import useGame from "./hooks/useGame";
 
@@ -16,9 +17,7 @@ function App() {
         <StartScreen
           difficulty={game.difficulty}
           settings={game.settings}
-          onDifficultyChange={
-            game.selectDifficulty
-          }
+          onDifficultyChange={game.selectDifficulty}
           onStart={game.startGame}
         />
       )}
@@ -30,19 +29,18 @@ function App() {
             streak={game.streak}
             lives={game.lives}
             timeLeft={game.timeLeft}
-            bestReaction={
-              game.bestReaction
-            }
-            reactionTime={
-              game.reactionTime
-            }
+            bestReaction={game.bestReaction}
+            reactionTime={game.reactionTime}
+          />
+
+          <Feedback
+            type={game.feedback.type}
+            message={game.feedback.message}
           />
 
           <GameBoard
             position={game.position}
-            targetSize={
-              game.settings.targetSize
-            }
+            targetSize={game.settings.targetSize}
             onHit={game.handleHit}
             onMiss={game.handleMiss}
           />
@@ -51,25 +49,15 @@ function App() {
 
       {game.gameState === "gameover" && (
         <ResultsScreen
-          difficulty={
-            game.settings.label
-          }
+          difficulty={game.settings.label}
           score={game.score}
           accuracy={game.accuracy}
-          averageReaction={
-            game.averageReaction
-          }
-          bestReaction={
-            game.bestReaction
-          }
+          averageReaction={game.averageReaction}
+          bestReaction={game.bestReaction}
           misses={game.misses}
           rating={game.getRating()}
-          onPlayAgain={
-            game.startGame
-          }
-          onChangeDifficulty={
-            game.changeToReady
-          }
+          onPlayAgain={game.startGame}
+          onChangeDifficulty={game.changeToReady}
         />
       )}
     </div>

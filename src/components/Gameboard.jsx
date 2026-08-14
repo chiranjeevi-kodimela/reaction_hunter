@@ -1,14 +1,6 @@
-function GameBoard({
-  position,
-  targetSize,
-  onHit,
-  onMiss,
-}) {
+function GameBoard({ position, targetSize, onHit, onMiss }) {
   return (
-    <div
-      className="game-area"
-      onClick={onMiss}
-    >
+    <div className="game-area" onClick={onMiss}>
       <div
         className="target"
         style={{

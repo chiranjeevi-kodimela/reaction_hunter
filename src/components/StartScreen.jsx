@@ -52,13 +52,9 @@ function App() {
   function getNewPosition() {
     const targetSize = settings.targetSize;
 
-    const newTop = Math.floor(
-      Math.random() * (500 - targetSize)
-    );
+    const newTop = Math.floor(Math.random() * (500 - targetSize));
 
-    const newLeft = Math.floor(
-      Math.random() * (800 - targetSize)
-    );
+    const newLeft = Math.floor(Math.random() * (800 - targetSize));
 
     setPosition({
       top: newTop,
@@ -107,10 +103,7 @@ function App() {
     setReactionTime(reaction);
 
     // Store reaction time
-    setReactionTimes((currentTimes) => [
-      ...currentTimes,
-      reaction,
-    ]);
+    setReactionTimes((currentTimes) => [...currentTimes, reaction]);
 
     // Increase score
     setScore((currentScore) => currentScore + 1);
@@ -119,10 +112,7 @@ function App() {
     setStreak((currentStreak) => currentStreak + 1);
 
     // Update best reaction
-    if (
-      bestReaction === null ||
-      reaction < bestReaction
-    ) {
+    if (bestReaction === null || reaction < bestReaction) {
       setBestReaction(reaction);
     }
 
@@ -191,10 +181,8 @@ function App() {
   const averageReaction =
     reactionTimes.length > 0
       ? Math.round(
-          reactionTimes.reduce(
-            (total, time) => total + time,
-            0
-          ) / reactionTimes.length
+          reactionTimes.reduce((total, time) => total + time, 0) /
+            reactionTimes.length,
         )
       : null;
 
@@ -202,11 +190,7 @@ function App() {
   const totalAttempts = score + misses;
 
   const accuracy =
-    totalAttempts > 0
-      ? Math.round(
-          (score / totalAttempts) * 100
-        )
-      : 0;
+    totalAttempts > 0 ? Math.round((score / totalAttempts) * 100) : 0;
 
   // Calculate performance rating
   function getRating() {
@@ -214,24 +198,15 @@ function App() {
       return "No Data";
     }
 
-    if (
-      averageReaction < 300 &&
-      accuracy >= 90
-    ) {
+    if (averageReaction < 300 && accuracy >= 90) {
       return "LEGENDARY";
     }
 
-    if (
-      averageReaction < 400 &&
-      accuracy >= 80
-    ) {
+    if (averageReaction < 400 && accuracy >= 80) {
       return "EXCELLENT";
     }
 
-    if (
-      averageReaction < 500 &&
-      accuracy >= 70
-    ) {
+    if (averageReaction < 500 && accuracy >= 70) {
       return "GREAT";
     }
 
@@ -244,7 +219,6 @@ function App() {
 
   return (
     <div className="game">
-
       {/* READY SCREEN */}
       {gameState === "ready" && (
         <div className="menu">
@@ -252,60 +226,34 @@ function App() {
 
           <div className="difficulty-buttons">
             <button
-              className={
-                difficulty === "easy"
-                  ? "selected"
-                  : ""
-              }
-              onClick={() =>
-                selectDifficulty("easy")
-              }
+              className={difficulty === "easy" ? "selected" : ""}
+              onClick={() => selectDifficulty("easy")}
             >
               Easy
             </button>
 
             <button
-              className={
-                difficulty === "medium"
-                  ? "selected"
-                  : ""
-              }
-              onClick={() =>
-                selectDifficulty("medium")
-              }
+              className={difficulty === "medium" ? "selected" : ""}
+              onClick={() => selectDifficulty("medium")}
             >
               Medium
             </button>
 
             <button
-              className={
-                difficulty === "hard"
-                  ? "selected"
-                  : ""
-              }
-              onClick={() =>
-                selectDifficulty("hard")
-              }
+              className={difficulty === "hard" ? "selected" : ""}
+              onClick={() => selectDifficulty("hard")}
             >
               Hard
             </button>
           </div>
 
-          <p>
-            Target: {settings.targetSize}px
-          </p>
+          <p>Target: {settings.targetSize}px</p>
 
-          <p>
-            Lives: {settings.lives}
-          </p>
+          <p>Lives: {settings.lives}</p>
 
-          <p>
-            Time: {settings.time}s
-          </p>
+          <p>Time: {settings.time}s</p>
 
-          <button onClick={startGame}>
-            Start Game
-          </button>
+          <button onClick={startGame}>Start Game</button>
         </div>
       )}
 
@@ -313,41 +261,23 @@ function App() {
       {gameState === "playing" && (
         <>
           <div className="stats">
-            <p>
-              Score: {score}
-            </p>
+            <p>Score: {score}</p>
 
-            <p>
-              Streak: {streak}
-            </p>
+            <p>Streak: {streak}</p>
 
-            <p>
-              Lives: {"♥".repeat(lives)}
-            </p>
+            <p>Lives: {"♥".repeat(lives)}</p>
 
-            <p>
-              Time: {timeLeft}s
-            </p>
+            <p>Time: {timeLeft}s</p>
 
-            <p>
-              Best:{" "}
-              {bestReaction !== null
-                ? `${bestReaction} ms`
-                : "--"}
-            </p>
+            <p>Best: {bestReaction !== null ? `${bestReaction} ms` : "--"}</p>
 
             <p>
               Reaction:{" "}
-              {reactionTime !== null
-                ? `${reactionTime} ms`
-                : "Ready..."}
+              {reactionTime !== null ? `${reactionTime} ms` : "Ready..."}
             </p>
           </div>
 
-          <div
-            className="game-area"
-            onClick={handleMiss}
-          >
+          <div className="game-area" onClick={handleMiss}>
             <div
               className="target"
               style={{
@@ -368,73 +298,50 @@ function App() {
           <h2>Game Over</h2>
 
           <p>
-            Difficulty:{" "}
-            <strong>
-              {settings.label}
-            </strong>
+            Difficulty: <strong>{settings.label}</strong>
           </p>
 
           <div className="result-stats">
             <p>
               Score
-              <strong>
-                {score}
-              </strong>
+              <strong>{score}</strong>
             </p>
 
             <p>
               Accuracy
-              <strong>
-                {accuracy}%
-              </strong>
+              <strong>{accuracy}%</strong>
             </p>
 
             <p>
               Average
               <strong>
-                {averageReaction !== null
-                  ? `${averageReaction} ms`
-                  : "--"}
+                {averageReaction !== null ? `${averageReaction} ms` : "--"}
               </strong>
             </p>
 
             <p>
               Best
               <strong>
-                {bestReaction !== null
-                  ? `${bestReaction} ms`
-                  : "--"}
+                {bestReaction !== null ? `${bestReaction} ms` : "--"}
               </strong>
             </p>
 
             <p>
               Hits
-              <strong>
-                {score}
-              </strong>
+              <strong>{score}</strong>
             </p>
 
             <p>
               Misses
-              <strong>
-                {misses}
-              </strong>
+              <strong>{misses}</strong>
             </p>
           </div>
 
-          <h3>
-            {getRating()}
-          </h3>
+          <h3>{getRating()}</h3>
 
-          <button onClick={startGame}>
-            Play Again
-          </button>
+          <button onClick={startGame}>Play Again</button>
 
-          <button
-            onClick={() =>
-              setGameState("ready")
-            }
-          >
+          <button onClick={() => setGameState("ready")}>
             Change Difficulty
           </button>
         </div>

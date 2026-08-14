@@ -14,71 +14,48 @@ function ResultsScreen({
       <h2>Game Over</h2>
 
       <p>
-        Difficulty:{" "}
-        <strong>
-          {difficulty}
-        </strong>
+        Difficulty: <strong>{difficulty}</strong>
       </p>
 
       <div className="result-stats">
         <p>
           Score
-          <strong>
-            {score}
-          </strong>
+          <strong>{score}</strong>
         </p>
 
         <p>
           Accuracy
-          <strong>
-            {accuracy}%
-          </strong>
+          <strong>{accuracy}%</strong>
         </p>
 
         <p>
           Average
           <strong>
-            {averageReaction !== null
-              ? `${averageReaction} ms`
-              : "--"}
+            {averageReaction !== null ? `${averageReaction} ms` : "--"}
           </strong>
         </p>
 
         <p>
           Best
-          <strong>
-            {bestReaction !== null
-              ? `${bestReaction} ms`
-              : "--"}
-          </strong>
+          <strong>{bestReaction !== null ? `${bestReaction} ms` : "--"}</strong>
         </p>
 
         <p>
           Hits
-          <strong>
-            {score}
-          </strong>
+          <strong>{score}</strong>
         </p>
 
         <p>
           Misses
-          <strong>
-            {misses}
-          </strong>
+          <strong>{misses}</strong>
         </p>
       </div>
 
       <h3>{rating}</h3>
 
-      <button onClick={onPlayAgain}>
-        Play Again
-      </button>
+      <button onClick={onPlayAgain}>Play Again</button>
 
-      <button
-        onClick={onChangeDifficulty}
-      >
-        Change Difficulty
-      </button>
+      <button onClick={onChangeDifficulty}>Change Difficulty</button>
     </div>
   );
 }
