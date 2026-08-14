@@ -91,3 +91,28 @@ body {
   background: white;
   color: #111;
 }
+
+.results {
+  max-width: 600px;
+  margin: 60px auto 0;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.result-stats p {
+  padding: 15px;
+  margin: 0;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+
+.result-stats strong {
+  display: block;
+  font-size: 24px;
+  margin-top: 5px;
+}
