@@ -167,3 +167,10 @@ body {
   border: 3px solid #ffd700;
   font-size: 36px;
 }
+
+.feedback.timeout {
+  color: #ff9500;
+  background: #332000;
+  border: 3px solid #ff9500;
+  font-size: 36px;
+}

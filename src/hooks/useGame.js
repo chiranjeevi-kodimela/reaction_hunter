@@ -6,6 +6,7 @@ const difficultySettings = {
     targetSize: 60,
     lives: 5,
     time: 30,
+    targetTime: 2000,
   },
 
   medium: {
@@ -13,6 +14,7 @@ const difficultySettings = {
     targetSize: 45,
     lives: 3,
     time: 30,
+    targetTime: 1500,
   },
 
   hard: {
@@ -20,6 +22,7 @@ const difficultySettings = {
     targetSize: 30,
     lives: 2,
     time: 30,
+    targetTime: 1000,
   },
 };
 
@@ -51,11 +54,13 @@ function useGame() {
 
   const [timeLeft, setTimeLeft] = useState(30);
 
-  // Feedback state
   const [feedback, setFeedback] = useState({
     type: "",
     message: "",
   });
+
+  // Identifies each target
+  const [targetKey, setTargetKey] = useState(0);
 
   const settings = difficultySettings[difficulty];
 
@@ -77,8 +82,6 @@ function useGame() {
   }
 
   function startGame() {
-    setGameState("playing");
-
     setScore(0);
     setStreak(0);
 
@@ -98,7 +101,11 @@ function useGame() {
 
     getNewPosition();
 
+    setTargetKey(0);
+
     setStartTime(Date.now());
+
+    setGameState("playing");
   }
 
   function handleHit(event) {
@@ -112,10 +119,9 @@ function useGame() {
 
     setReactionTime(reaction);
 
-    // SHOW HIT FEEDBACK
     setFeedback({
       type: "hit",
-      message: `+1  ${reaction} ms`,
+      message: `+1 ${reaction} ms`,
     });
 
     setReactionTimes((currentTimes) => [...currentTimes, reaction]);
@@ -134,11 +140,14 @@ function useGame() {
 
       return newStreak;
     });
+
     if (bestReaction === null || reaction < bestReaction) {
       setBestReaction(reaction);
     }
 
     getNewPosition();
+
+    setTargetKey((currentKey) => currentKey + 1);
 
     setStartTime(Date.now());
   }
@@ -148,7 +157,6 @@ function useGame() {
       return;
     }
 
-    // SHOW MISS FEEDBACK
     setFeedback({
       type: "miss",
       message: "MISS!",
@@ -170,10 +178,39 @@ function useGame() {
 
     getNewPosition();
 
+    setTargetKey((currentKey) => currentKey + 1);
+
     setStartTime(Date.now());
   }
 
-  // Game timer
+  function handleTargetTimeout() {
+    setFeedback({
+      type: "timeout",
+      message: "TIME OUT!",
+    });
+
+    setMisses((currentMisses) => currentMisses + 1);
+
+    setLives((currentLives) => {
+      const newLives = currentLives - 1;
+
+      if (newLives <= 0) {
+        setGameState("gameover");
+      }
+
+      return newLives;
+    });
+
+    setStreak(0);
+
+    getNewPosition();
+
+    setTargetKey((currentKey) => currentKey + 1);
+
+    setStartTime(Date.now());
+  }
+
+  // Overall game timer
   useEffect(() => {
     if (gameState !== "playing") {
       return;
@@ -183,7 +220,6 @@ function useGame() {
       setTimeLeft((currentTime) => {
         if (currentTime <= 1) {
           setGameState("gameover");
-
           return 0;
         }
 
@@ -196,7 +232,22 @@ function useGame() {
     };
   }, [gameState]);
 
-  // Remove feedback after 1 second
+  // Individual target reaction timer
+  useEffect(() => {
+    if (gameState !== "playing") {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleTargetTimeout();
+    }, settings.targetTime);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [gameState, targetKey, difficulty]);
+
+  // Clear feedback after 1 second
   useEffect(() => {
     if (!feedback.message) {
       return;
@@ -280,7 +331,9 @@ function useGame() {
     handleHit,
     handleMiss,
 
-    changeToReady: () => setGameState("ready"),
+    changeToReady: () => {
+      setGameState("ready");
+    },
   };
 }
 
