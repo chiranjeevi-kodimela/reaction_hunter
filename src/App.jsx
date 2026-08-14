@@ -1,329 +1,74 @@
-import { useEffect, useState } from "react";
-
 import StartScreen from "./components/StartScreen";
 import GameStats from "./components/GameStats";
 import GameBoard from "./components/GameBoard";
 import ResultsScreen from "./components/ResultsScreen";
 
-const difficultySettings = {
-  easy: {
-    label: "Easy",
-    targetSize: 60,
-    lives: 5,
-    time: 30,
-  },
-
-  medium: {
-    label: "Medium",
-    targetSize: 45,
-    lives: 3,
-    time: 30,
-  },
-
-  hard: {
-    label: "Hard",
-    targetSize: 30,
-    lives: 2,
-    time: 30,
-  },
-};
+import useGame from "./hooks/useGame";
 
 function App() {
-  const [gameState, setGameState] =
-    useState("ready");
-
-  const [difficulty, setDifficulty] =
-    useState("easy");
-
-  const [position, setPosition] = useState({
-    top: 200,
-    left: 350,
-  });
-
-  const [reactionTime, setReactionTime] =
-    useState(null);
-
-  const [reactionTimes, setReactionTimes] =
-    useState([]);
-
-  const [startTime, setStartTime] =
-    useState(null);
-
-  const [score, setScore] =
-    useState(0);
-
-  const [streak, setStreak] =
-    useState(0);
-
-  const [bestReaction, setBestReaction] =
-    useState(null);
-
-  const [lives, setLives] =
-    useState(5);
-
-  const [misses, setMisses] =
-    useState(0);
-
-  const [timeLeft, setTimeLeft] =
-    useState(30);
-
-  const settings =
-    difficultySettings[difficulty];
-
-  function getNewPosition() {
-    const targetSize =
-      settings.targetSize;
-
-    const newTop = Math.floor(
-      Math.random() *
-        (500 - targetSize)
-    );
-
-    const newLeft = Math.floor(
-      Math.random() *
-        (800 - targetSize)
-    );
-
-    setPosition({
-      top: newTop,
-      left: newLeft,
-    });
-  }
-
-  function startGame() {
-    setGameState("playing");
-
-    setScore(0);
-    setStreak(0);
-    setLives(settings.lives);
-    setMisses(0);
-
-    setTimeLeft(settings.time);
-
-    setReactionTime(null);
-    setReactionTimes([]);
-    setBestReaction(null);
-
-    getNewPosition();
-
-    setStartTime(Date.now());
-  }
-
-  function handleHit(event) {
-    event.stopPropagation();
-
-    if (gameState !== "playing") {
-      return;
-    }
-
-    const reaction =
-      Date.now() - startTime;
-
-    setReactionTime(reaction);
-
-    setReactionTimes(
-      (currentTimes) => [
-        ...currentTimes,
-        reaction,
-      ]
-    );
-
-    setScore(
-      (currentScore) =>
-        currentScore + 1
-    );
-
-    setStreak(
-      (currentStreak) =>
-        currentStreak + 1
-    );
-
-    if (
-      bestReaction === null ||
-      reaction < bestReaction
-    ) {
-      setBestReaction(reaction);
-    }
-
-    getNewPosition();
-
-    setStartTime(Date.now());
-  }
-
-  function handleMiss() {
-    if (gameState !== "playing") {
-      return;
-    }
-
-    setMisses(
-      (currentMisses) =>
-        currentMisses + 1
-    );
-
-    setLives((currentLives) => {
-      const newLives =
-        currentLives - 1;
-
-      if (newLives <= 0) {
-        setGameState("gameover");
-      }
-
-      return newLives;
-    });
-
-    setStreak(0);
-
-    getNewPosition();
-
-    setStartTime(Date.now());
-  }
-
-  useEffect(() => {
-    if (gameState !== "playing") {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(
-        (currentTime) => {
-          if (currentTime <= 1) {
-            setGameState(
-              "gameover"
-            );
-
-            return 0;
-          }
-
-          return currentTime - 1;
-        }
-      );
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [gameState]);
-
-  const averageReaction =
-    reactionTimes.length > 0
-      ? Math.round(
-          reactionTimes.reduce(
-            (total, time) =>
-              total + time,
-            0
-          ) /
-            reactionTimes.length
-        )
-      : null;
-
-  const totalAttempts =
-    score + misses;
-
-  const accuracy =
-    totalAttempts > 0
-      ? Math.round(
-          (score /
-            totalAttempts) *
-            100
-        )
-      : 0;
-
-  function getRating() {
-    if (averageReaction === null) {
-      return "No Data";
-    }
-
-    if (
-      averageReaction < 300 &&
-      accuracy >= 90
-    ) {
-      return "LEGENDARY";
-    }
-
-    if (
-      averageReaction < 400 &&
-      accuracy >= 80
-    ) {
-      return "EXCELLENT";
-    }
-
-    if (
-      averageReaction < 500 &&
-      accuracy >= 70
-    ) {
-      return "GREAT";
-    }
-
-    if (
-      averageReaction < 700
-    ) {
-      return "GOOD";
-    }
-
-    return "KEEP PRACTICING";
-  }
+  const game = useGame();
 
   return (
     <div className="game">
       <h1>Reaction Hunter</h1>
 
-      {gameState === "ready" && (
+      {game.gameState === "ready" && (
         <StartScreen
-          difficulty={difficulty}
-          settings={settings}
+          difficulty={game.difficulty}
+          settings={game.settings}
           onDifficultyChange={
-            setDifficulty
+            game.selectDifficulty
           }
-          onStart={startGame}
+          onStart={game.startGame}
         />
       )}
 
-      {gameState === "playing" && (
+      {game.gameState === "playing" && (
         <>
           <GameStats
-            score={score}
-            streak={streak}
-            lives={lives}
-            timeLeft={timeLeft}
+            score={game.score}
+            streak={game.streak}
+            lives={game.lives}
+            timeLeft={game.timeLeft}
             bestReaction={
-              bestReaction
+              game.bestReaction
             }
             reactionTime={
-              reactionTime
+              game.reactionTime
             }
           />
 
           <GameBoard
-            position={position}
+            position={game.position}
             targetSize={
-              settings.targetSize
+              game.settings.targetSize
             }
-            onHit={handleHit}
-            onMiss={handleMiss}
+            onHit={game.handleHit}
+            onMiss={game.handleMiss}
           />
         </>
       )}
 
-      {gameState === "gameover" && (
+      {game.gameState === "gameover" && (
         <ResultsScreen
           difficulty={
-            settings.label
+            game.settings.label
           }
-          score={score}
-          accuracy={accuracy}
+          score={game.score}
+          accuracy={game.accuracy}
           averageReaction={
-            averageReaction
+            game.averageReaction
           }
           bestReaction={
-            bestReaction
+            game.bestReaction
           }
-          misses={misses}
-          rating={getRating()}
+          misses={game.misses}
+          rating={game.getRating()}
           onPlayAgain={
-            startGame
+            game.startGame
           }
-          onChangeDifficulty={() =>
-            setGameState("ready")
+          onChangeDifficulty={
+            game.changeToReady
           }
         />
       )}

@@ -244,7 +244,6 @@ function App() {
 
   return (
     <div className="game">
-      <h1>Reaction Hunter</h1>
 
       {/* READY SCREEN */}
       {gameState === "ready" && (
