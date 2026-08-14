@@ -1,6 +1,7 @@
 function GameStats({
   score,
   streak,
+  multiplier,
   lives,
   timeLeft,
   bestReaction,
@@ -11,7 +12,7 @@ function GameStats({
       <p>Score: {score}</p>
 
       <p>Streak: {streak}</p>
-
+      <p>Multiplier: ×{multiplier}</p>
       <p>Lives: {"♥".repeat(lives)}</p>
 
       <p>Time: {timeLeft}s</p>

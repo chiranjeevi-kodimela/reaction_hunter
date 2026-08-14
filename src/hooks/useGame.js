@@ -58,7 +58,7 @@ function useGame() {
     type: "",
     message: "",
   });
-
+  const [multiplier, setMultiplier] = useState(1);
   // Identifies each target
   const [targetKey, setTargetKey] = useState(0);
 
@@ -93,7 +93,7 @@ function useGame() {
     setReactionTime(null);
     setReactionTimes([]);
     setBestReaction(null);
-
+    setMultiplier(1);
     setFeedback({
       type: "",
       message: "",
@@ -126,15 +126,31 @@ function useGame() {
 
     setReactionTimes((currentTimes) => [...currentTimes, reaction]);
 
-    setScore((currentScore) => currentScore + 1);
+    setScore((currentScore) => {
+      const newScore = currentScore + multiplier;
+
+      return newScore;
+    });
 
     setStreak((currentStreak) => {
       const newStreak = currentStreak + 1;
 
+      let newMultiplier = 1;
+
+      if (newStreak >= 15) {
+        newMultiplier = 4;
+      } else if (newStreak >= 10) {
+        newMultiplier = 3;
+      } else if (newStreak >= 5) {
+        newMultiplier = 2;
+      }
+
+      setMultiplier(newMultiplier);
+
       if (newStreak % 5 === 0) {
         setFeedback({
           type: "streak",
-          message: `${newStreak} HIT STREAK!`,
+          message: `${newStreak} HIT STREAK! ×${newMultiplier}`,
         });
       }
 
@@ -175,7 +191,7 @@ function useGame() {
     });
 
     setStreak(0);
-
+    setMultiplier(1);
     getNewPosition();
 
     setTargetKey((currentKey) => currentKey + 1);
@@ -190,7 +206,8 @@ function useGame() {
     });
 
     setMisses((currentMisses) => currentMisses + 1);
-
+    setStreak(0);
+    setMultiplier(1);
     setLives((currentLives) => {
       const newLives = currentLives - 1;
 
@@ -335,6 +352,7 @@ function useGame() {
     score,
     streak,
     lives,
+    multiplier,
     misses,
 
     timeLeft,

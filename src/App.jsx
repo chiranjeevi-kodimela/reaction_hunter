@@ -27,6 +27,7 @@ function App() {
           <GameStats
             score={game.score}
             streak={game.streak}
+            multiplier={game.multiplier}
             lives={game.lives}
             timeLeft={game.timeLeft}
             bestReaction={game.bestReaction}
