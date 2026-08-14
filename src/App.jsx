@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [gameState, setGameState] = useState("ready");
@@ -17,6 +17,8 @@ function App() {
 
   const [lives, setLives] = useState(3);
 
+  const [timeLeft, setTimeLeft] = useState(30);
+
   function getNewPosition() {
     const newTop = Math.floor(Math.random() * 440);
     const newLeft = Math.floor(Math.random() * 740);
@@ -33,8 +35,11 @@ function App() {
     setScore(0);
     setStreak(0);
     setLives(3);
+
     setReactionTime(null);
     setBestReaction(null);
+
+    setTimeLeft(30);
 
     getNewPosition();
 
@@ -88,6 +93,28 @@ function App() {
     setStartTime(Date.now());
   }
 
+  useEffect(() => {
+    if (gameState !== "playing") {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((currentTime) => {
+        if (currentTime <= 1) {
+          setGameState("gameover");
+
+          return 0;
+        }
+
+        return currentTime - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [gameState]);
+
   return (
     <div className="game">
       <h1>Reaction Hunter</h1>
@@ -95,6 +122,7 @@ function App() {
       {gameState === "ready" && (
         <div className="menu">
           <h2>Ready?</h2>
+
           <p>Click the target as fast as you can.</p>
 
           <button onClick={startGame}>
@@ -112,6 +140,10 @@ function App() {
 
             <p>
               Lives: {"♥".repeat(lives)}
+            </p>
+
+            <p>
+              Time: {timeLeft}s
             </p>
 
             <p>
