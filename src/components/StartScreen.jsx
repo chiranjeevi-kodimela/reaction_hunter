@@ -27,8 +27,11 @@ function StartScreen({ difficulty, settings, onDifficultyChange, onStart }) {
       </div>
 
       <p>Target: {settings.targetSize}px</p>
+
       <p>Lives: {settings.lives}</p>
-      <p>Time: {settings.time}s</p>
+
+      <p>Game Time: {settings.time}s</p>
+
       <p>Reaction Window: {settings.targetTime / 1000}s</p>
 
       <button onClick={onStart}>Start Game</button>

@@ -13,6 +13,7 @@ function App() {
     <div className="game">
       <h1>Reaction Hunter</h1>
 
+      {/* START SCREEN */}
       {game.gameState === "ready" && (
         <StartScreen
           difficulty={game.difficulty}
@@ -22,10 +23,12 @@ function App() {
         />
       )}
 
+      {/* GAME SCREEN */}
       {game.gameState === "playing" && (
         <>
           <GameStats
             score={game.score}
+            highScore={game.highScore}
             streak={game.streak}
             multiplier={game.multiplier}
             lives={game.lives}
@@ -34,10 +37,7 @@ function App() {
             reactionTime={game.reactionTime}
           />
 
-          <Feedback
-            type={game.feedback.type}
-            message={game.feedback.message}
-          />
+          <Feedback type={game.feedback.type} message={game.feedback.message} />
 
           <GameBoard
             position={game.position}
@@ -49,15 +49,18 @@ function App() {
         </>
       )}
 
+      {/* RESULTS SCREEN */}
       {game.gameState === "gameover" && (
         <ResultsScreen
           difficulty={game.settings.label}
           score={game.score}
+          highScore={game.highScore}
           accuracy={game.accuracy}
           averageReaction={game.averageReaction}
           bestReaction={game.bestReaction}
           misses={game.misses}
           rating={game.getRating()}
+          newHighScore={game.newHighScore}
           onPlayAgain={game.startGame}
           onChangeDifficulty={game.changeToReady}
         />

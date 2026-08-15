@@ -1,5 +1,6 @@
 function GameStats({
   score,
+  highScore,
   streak,
   multiplier,
   lives,
@@ -11,17 +12,19 @@ function GameStats({
     <div className="stats">
       <p>Score: {score}</p>
 
+      <p>Best Score: {highScore}</p>
+
       <p>Streak: {streak}</p>
-      <p>Multiplier: ×{multiplier}</p>
+
+      <p className="multiplier">Multiplier: ×{multiplier}</p>
+
       <p>Lives: {"♥".repeat(lives)}</p>
 
       <p>Time: {timeLeft}s</p>
 
-      <p>Best: {bestReaction !== null ? `${bestReaction} ms` : "--"}</p>
+      <p>Best: {bestReaction !== null ? `${bestReaction} ms` : "-"}</p>
 
-      <p>
-        Reaction: {reactionTime !== null ? `${reactionTime} ms` : "Ready..."}
-      </p>
+      <p>Reaction: {reactionTime !== null ? `${reactionTime} ms` : "-"}</p>
     </div>
   );
 }

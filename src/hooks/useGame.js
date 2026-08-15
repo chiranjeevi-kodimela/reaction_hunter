@@ -46,6 +46,8 @@ function useGame() {
 
   const [streak, setStreak] = useState(0);
 
+  const [multiplier, setMultiplier] = useState(1);
+
   const [bestReaction, setBestReaction] = useState(null);
 
   const [lives, setLives] = useState(5);
@@ -53,16 +55,31 @@ function useGame() {
   const [misses, setMisses] = useState(0);
 
   const [timeLeft, setTimeLeft] = useState(30);
+
   const [targetTimeLeft, setTargetTimeLeft] = useState(0);
+
+  const [targetKey, setTargetKey] = useState(0);
+
   const [feedback, setFeedback] = useState({
     type: "",
     message: "",
   });
-  const [multiplier, setMultiplier] = useState(1);
-  // Identifies each target
-  const [targetKey, setTargetKey] = useState(0);
+
+  // High score
+  const [highScore, setHighScore] = useState(() => {
+    const savedScore = localStorage.getItem("reactionHunterHighScore");
+
+    return savedScore ? Number(savedScore) : 0;
+  });
+
+  // Whether the current game created a new record
+  const [newHighScore, setNewHighScore] = useState(false);
 
   const settings = difficultySettings[difficulty];
+
+  // -----------------------------------
+  // Generate a new target position
+  // -----------------------------------
 
   function getNewPosition() {
     const targetSize = settings.targetSize;
@@ -77,36 +94,58 @@ function useGame() {
     });
   }
 
+  // -----------------------------------
+  // Difficulty
+  // -----------------------------------
+
   function selectDifficulty(level) {
     setDifficulty(level);
   }
 
+  // -----------------------------------
+  // Start game
+  // -----------------------------------
+
   function startGame() {
     setScore(0);
+
     setStreak(0);
 
+    setMultiplier(1);
+
     setLives(settings.lives);
+
     setMisses(0);
 
     setTimeLeft(settings.time);
-    setTargetTimeLeft(settings.targetTime);
+
     setReactionTime(null);
+
     setReactionTimes([]);
+
     setBestReaction(null);
-    setMultiplier(1);
+
+    setTargetTimeLeft(settings.targetTime);
+
+    setTargetKey(0);
+
     setFeedback({
       type: "",
       message: "",
     });
 
-    getNewPosition();
+    setNewHighScore(false);
 
-    setTargetKey(0);
+    getNewPosition();
 
     setStartTime(Date.now());
 
     setGameState("playing");
   }
+
+  // -----------------------------------
+  // Target HIT
+  // -----------------------------------
 
   function handleHit(event) {
     event.stopPropagation();
@@ -119,19 +158,24 @@ function useGame() {
 
     setReactionTime(reaction);
 
-    setFeedback({
-      type: "hit",
-      message: `+1 ${reaction} ms`,
-    });
-
     setReactionTimes((currentTimes) => [...currentTimes, reaction]);
 
+    // Calculate score using current multiplier
     setScore((currentScore) => {
       const newScore = currentScore + multiplier;
+
+      if (newScore > highScore) {
+        setHighScore(newScore);
+
+        setNewHighScore(true);
+
+        localStorage.setItem("reactionHunterHighScore", newScore);
+      }
 
       return newScore;
     });
 
+    // Update streak and multiplier
     setStreak((currentStreak) => {
       const newStreak = currentStreak + 1;
 
@@ -152,21 +196,34 @@ function useGame() {
           type: "streak",
           message: `${newStreak} HIT STREAK! ×${newMultiplier}`,
         });
+      } else {
+        setFeedback({
+          type: "hit",
+          message: `+${multiplier}  ${reaction} ms`,
+        });
       }
 
       return newStreak;
     });
 
+    // Best reaction time
     if (bestReaction === null || reaction < bestReaction) {
       setBestReaction(reaction);
     }
 
+    // New target
     getNewPosition();
 
     setTargetKey((currentKey) => currentKey + 1);
 
+    setTargetTimeLeft(settings.targetTime);
+
     setStartTime(Date.now());
   }
+
+  // -----------------------------------
+  // Target MISS
+  // -----------------------------------
 
   function handleMiss() {
     if (gameState !== "playing") {
@@ -191,23 +248,34 @@ function useGame() {
     });
 
     setStreak(0);
+
     setMultiplier(1);
+
     getNewPosition();
 
     setTargetKey((currentKey) => currentKey + 1);
 
+    setTargetTimeLeft(settings.targetTime);
+
     setStartTime(Date.now());
   }
 
+  // -----------------------------------
+  // Target TIMEOUT
+  // -----------------------------------
+
   function handleTargetTimeout() {
+    if (gameState !== "playing") {
+      return;
+    }
+
     setFeedback({
       type: "timeout",
       message: "TIME OUT!",
     });
 
     setMisses((currentMisses) => currentMisses + 1);
-    setStreak(0);
-    setMultiplier(1);
+
     setLives((currentLives) => {
       const newLives = currentLives - 1;
 
@@ -220,14 +288,21 @@ function useGame() {
 
     setStreak(0);
 
+    setMultiplier(1);
+
     getNewPosition();
 
     setTargetKey((currentKey) => currentKey + 1);
 
+    setTargetTimeLeft(settings.targetTime);
+
     setStartTime(Date.now());
   }
 
+  // -----------------------------------
   // Overall game timer
+  // -----------------------------------
+
   useEffect(() => {
     if (gameState !== "playing") {
       return;
@@ -237,6 +312,7 @@ function useGame() {
       setTimeLeft((currentTime) => {
         if (currentTime <= 1) {
           setGameState("gameover");
+
           return 0;
         }
 
@@ -249,7 +325,10 @@ function useGame() {
     };
   }, [gameState]);
 
-  // Individual target reaction timer
+  // -----------------------------------
+  // Target timeout timer
+  // -----------------------------------
+
   useEffect(() => {
     if (gameState !== "playing") {
       return;
@@ -264,6 +343,10 @@ function useGame() {
     };
   }, [gameState, targetKey, difficulty]);
 
+  // -----------------------------------
+  // Visual target countdown
+  // -----------------------------------
+
   useEffect(() => {
     if (gameState !== "playing") {
       return;
@@ -274,7 +357,6 @@ function useGame() {
     const countdown = setInterval(() => {
       setTargetTimeLeft((currentTime) => {
         if (currentTime <= 100) {
-          clearInterval(countdown);
           return 0;
         }
 
@@ -287,7 +369,10 @@ function useGame() {
     };
   }, [gameState, targetKey, difficulty]);
 
-  // Clear feedback after 1 second
+  // -----------------------------------
+  // Feedback timer
+  // -----------------------------------
+
   useEffect(() => {
     if (!feedback.message) {
       return;
@@ -305,6 +390,10 @@ function useGame() {
     };
   }, [feedback]);
 
+  // -----------------------------------
+  // Average reaction
+  // -----------------------------------
+
   const averageReaction =
     reactionTimes.length > 0
       ? Math.round(
@@ -313,10 +402,18 @@ function useGame() {
         )
       : null;
 
+  // -----------------------------------
+  // Accuracy
+  // -----------------------------------
+
   const totalAttempts = score + misses;
 
   const accuracy =
     totalAttempts > 0 ? Math.round((score / totalAttempts) * 100) : 0;
+
+  // -----------------------------------
+  // Rating
+  // -----------------------------------
 
   function getRating() {
     if (averageReaction === null) {
@@ -342,23 +439,41 @@ function useGame() {
     return "KEEP PRACTICING";
   }
 
+  // -----------------------------------
+  // Return game data
+  // -----------------------------------
+
   return {
     gameState,
+
     difficulty,
+
     settings,
 
     position,
 
+    targetTimeLeft,
+
     score,
+
+    highScore,
+
+    newHighScore,
+
     streak,
-    lives,
+
     multiplier,
+
+    lives,
+
     misses,
 
     timeLeft,
-    targetTimeLeft,
+
     reactionTime,
+
     bestReaction,
+
     averageReaction,
 
     accuracy,
@@ -368,8 +483,11 @@ function useGame() {
     getRating,
 
     selectDifficulty,
+
     startGame,
+
     handleHit,
+
     handleMiss,
 
     changeToReady: () => {

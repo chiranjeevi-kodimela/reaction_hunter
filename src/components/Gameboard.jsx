@@ -1,10 +1,4 @@
-function GameBoard({
-  position,
-  targetSize,
-  targetTime,
-  onHit,
-  onMiss,
-}) {
+function GameBoard({ position, targetSize, targetTime, onHit, onMiss }) {
   return (
     <div className="game-area" onClick={onMiss}>
       <div
@@ -17,9 +11,7 @@ function GameBoard({
         }}
         onClick={onHit}
       >
-        <span>
-          {(targetTime / 1000).toFixed(1)}
-        </span>
+        <span>{(targetTime / 1000).toFixed(1)}</span>
       </div>
     </div>
   );

@@ -1,21 +1,23 @@
 function ResultsScreen({
   difficulty,
   score,
+  highScore,
   accuracy,
   averageReaction,
   bestReaction,
   misses,
   rating,
+  newHighScore,
   onPlayAgain,
   onChangeDifficulty,
 }) {
   return (
-    <div className="menu results">
+    <div className="results">
       <h2>Game Over</h2>
 
-      <p>
-        Difficulty: <strong>{difficulty}</strong>
-      </p>
+      {newHighScore && <h2 className="new-record">NEW HIGH SCORE!</h2>}
+
+      <p>Difficulty: {difficulty}</p>
 
       <div className="result-stats">
         <p>
@@ -24,34 +26,37 @@ function ResultsScreen({
         </p>
 
         <p>
+          High Score
+          <strong>{highScore}</strong>
+        </p>
+
+        <p>
           Accuracy
           <strong>{accuracy}%</strong>
         </p>
 
         <p>
-          Average
+          Average Reaction
           <strong>
-            {averageReaction !== null ? `${averageReaction} ms` : "--"}
+            {averageReaction !== null ? `${averageReaction} ms` : "-"}
           </strong>
         </p>
 
         <p>
-          Best
-          <strong>{bestReaction !== null ? `${bestReaction} ms` : "--"}</strong>
-        </p>
-
-        <p>
-          Hits
-          <strong>{score}</strong>
+          Best Reaction
+          <strong>{bestReaction !== null ? `${bestReaction} ms` : "-"}</strong>
         </p>
 
         <p>
           Misses
           <strong>{misses}</strong>
         </p>
-      </div>
 
-      <h3>{rating}</h3>
+        <p>
+          Rating
+          <strong>{rating}</strong>
+        </p>
+      </div>
 
       <button onClick={onPlayAgain}>Play Again</button>
 
