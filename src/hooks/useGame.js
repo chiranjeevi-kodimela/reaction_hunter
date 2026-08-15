@@ -66,16 +66,24 @@ function useGame() {
   });
 
   // High score
-  const [highScore, setHighScore] = useState(() => {
-    const savedScore = localStorage.getItem("reactionHunterHighScore");
+  const [highScores, setHighScores] = useState(() => {
+    const savedScores = localStorage.getItem("reactionHunterHighScores");
 
-    return savedScore ? Number(savedScore) : 0;
+    return savedScores
+      ? JSON.parse(savedScores)
+      : {
+          easy: 0,
+          medium: 0,
+          hard: 0,
+        };
   });
 
   // Whether the current game created a new record
   const [newHighScore, setNewHighScore] = useState(false);
 
   const settings = difficultySettings[difficulty];
+
+  const highScore = highScores[difficulty];
 
   // -----------------------------------
   // Generate a new target position
@@ -165,11 +173,19 @@ function useGame() {
       const newScore = currentScore + multiplier;
 
       if (newScore > highScore) {
-        setHighScore(newScore);
+        const updatedHighScores = {
+          ...highScores,
+          [difficulty]: newScore,
+        };
+
+        setHighScores(updatedHighScores);
 
         setNewHighScore(true);
 
-        localStorage.setItem("reactionHunterHighScore", newScore);
+        localStorage.setItem(
+          "reactionHunterHighScores",
+          JSON.stringify(updatedHighScores),
+        );
       }
 
       return newScore;
@@ -457,6 +473,8 @@ function useGame() {
     score,
 
     highScore,
+
+    highScores,
 
     newHighScore,
 
