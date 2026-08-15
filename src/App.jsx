@@ -1,6 +1,6 @@
 import StartScreen from "./components/StartScreen";
 import GameStats from "./components/GameStats";
-import GameBoard from "./components/GameBoard";
+import GameBoard from "./components/Gameboard";
 import ResultsScreen from "./components/ResultsScreen";
 import Feedback from "./components/Feedback";
 import GameHistory from "./components/GameHistory";
