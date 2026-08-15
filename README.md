@@ -4,7 +4,7 @@ A fast-paced reaction-time game built with React. Click the target as quickly an
 
 ## Live Demo
 
-[Play Reaction Hunter](https://reactionhunter.netlify.app/)
+[Play Reaction Hunter](https://reaction-hunter.netlify.app/)
 
 ## Features
 
