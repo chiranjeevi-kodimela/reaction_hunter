@@ -6,23 +6,23 @@ const difficultySettings = {
     targetSize: 60,
     lives: 5,
     time: 30,
-    targetTime: 2000,
+    targetTime: 2500,
   },
 
   medium: {
     label: "Medium",
-    targetSize: 45,
+    targetSize: 50,
     lives: 3,
     time: 30,
-    targetTime: 1500,
+    targetTime: 2000,
   },
 
   hard: {
     label: "Hard",
-    targetSize: 30,
+    targetSize: 40,
     lives: 2,
     time: 30,
-    targetTime: 1000,
+    targetTime: 1500,
   },
 };
 
