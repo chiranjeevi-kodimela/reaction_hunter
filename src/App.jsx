@@ -3,7 +3,7 @@ import GameStats from "./components/GameStats";
 import GameBoard from "./components/GameBoard";
 import ResultsScreen from "./components/ResultsScreen";
 import Feedback from "./components/Feedback";
-
+import GameHistory from "./components/GameHistory";
 import useGame from "./hooks/useGame";
 
 function App() {
@@ -60,6 +60,7 @@ function App() {
 
       {/* RESULTS SCREEN */}
       {game.gameState === "gameover" && (
+        <>
         <ResultsScreen
           difficulty={game.settings.label}
           score={game.score}
@@ -73,6 +74,9 @@ function App() {
           onPlayAgain={game.startGame}
           onChangeDifficulty={game.changeToReady}
         />
+
+        <GameHistory history={game.gameHistory} />
+      </>
       )}
     </div>
   );

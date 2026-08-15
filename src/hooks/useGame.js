@@ -90,6 +90,14 @@ function useGame() {
 
   const highScore = highScores[difficulty];
 
+  const [resultSaved, setResultSaved] = useState(false);
+
+  const [gameHistory, setGameHistory] = useState(() => {
+    const savedHistory = localStorage.getItem("reactionHunterGameHistory");
+
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+
   // -----------------------------------
   // Generate a new target position
   // -----------------------------------
@@ -165,6 +173,8 @@ function useGame() {
     });
 
     setNewHighScore(false);
+
+    setResultSaved(false);
 
     // Prepare target but don't start the game yet
     getNewPosition();
@@ -340,6 +350,29 @@ function useGame() {
     setStartTime(Date.now());
   }
 
+  function saveGameResult() {
+    const result = {
+      id: Date.now(),
+      difficulty: settings.label,
+      score,
+      accuracy,
+      averageReaction,
+      bestReaction,
+      rating: getRating(),
+    };
+
+    setGameHistory((currentHistory) => {
+      const updatedHistory = [result, ...currentHistory].slice(0, 5);
+
+      localStorage.setItem(
+        "reactionHunterGameHistory",
+        JSON.stringify(updatedHistory),
+      );
+
+      return updatedHistory;
+    });
+  }
+
   // -----------------------------------
   // Overall game timer
   // -----------------------------------
@@ -467,6 +500,13 @@ function useGame() {
     };
   }, [gameState, countdown, settings.time, settings.targetTime]);
 
+  useEffect(() => {
+    if (gameState === "gameover" && !resultSaved) {
+      saveGameResult();
+      setResultSaved(true);
+    }
+  }, [gameState, resultSaved]);
+
   // -----------------------------------
   // Average reaction
   // -----------------------------------
@@ -522,6 +562,8 @@ function useGame() {
 
   return {
     gameState,
+
+    gameHistory,
 
     difficulty,
 
