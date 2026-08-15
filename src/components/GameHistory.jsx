@@ -1,52 +1,51 @@
 function GameHistory({ history }) {
-  if (history.length === 0) {
-    return (
-      <div className="history">
-        <h3>Recent Games</h3>
-        <p>No games played yet.</p>
-      </div>
-    );
-  }
+  const recentGames = history.slice(0, 5);
 
   return (
     <div className="history">
-      <h3>Recent Games</h3>
+      <h2>Recent Games</h2>
 
-      <div className="history-list">
-        {history.map((game) => (
-          <div
-            className="history-item"
-            key={game.id}
-          >
-            <div>
-              <strong>
-                {game.difficulty}
-              </strong>
+      {recentGames.length === 0 ? (
+        <p>No games played yet.</p>
+      ) : (
+        <div className="history-list">
+          {recentGames.map((game, index) => (
+            <div className="history-item" key={game.id}>
+              <div>
+                <strong>Game #{history.length - index}</strong>
 
-              <span>
-                Score: {game.score}
-              </span>
+                <span>{game.difficulty}</span>
+              </div>
+
+              <div>
+                <strong>{game.score} pts</strong>
+
+                <span>{game.accuracy}% accuracy</span>
+              </div>
+
+              <div>
+                <span>Hits: {game.hits}</span>
+
+                <span>Misses: {game.misses}</span>
+              </div>
+
+              <div>
+                <span>
+                  Avg:{" "}
+                  {game.averageReaction !== null
+                    ? `${game.averageReaction} ms`
+                    : "-"}
+                </span>
+
+                <span>
+                  Best:{" "}
+                  {game.bestReaction !== null ? `${game.bestReaction} ms` : "-"}
+                </span>
+              </div>
             </div>
-
-            <div>
-              <span>
-                Accuracy: {game.accuracy}%
-              </span>
-
-              <span>
-                Avg:{" "}
-                {game.averageReaction !== null
-                  ? `${game.averageReaction} ms`
-                  : "-"}
-              </span>
-
-              <span>
-                Rating: {game.rating}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

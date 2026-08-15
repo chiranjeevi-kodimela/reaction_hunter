@@ -455,7 +455,8 @@ function useGame() {
     };
 
     setGameHistory((currentHistory) => {
-      const updatedHistory = [result, ...currentHistory].slice(0, 5);
+      // Keep ALL games
+      const updatedHistory = [result, ...currentHistory];
 
       localStorage.setItem(
         "reactionHunterGameHistory",
