@@ -480,3 +480,27 @@ button {
     flex-direction: column;
   }
 }
+.sound-button {
+  position: absolute;
+
+  top: 20px;
+  right: 20px;
+
+  padding: 8px 14px;
+
+  border: 1px solid #555;
+
+  border-radius: 6px;
+
+  background: #222;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.sound-button:hover {
+  background: #333;
+}

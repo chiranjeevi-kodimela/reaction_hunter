@@ -5,13 +5,42 @@ import ResultsScreen from "./components/ResultsScreen";
 import Feedback from "./components/Feedback";
 import GameHistory from "./components/GameHistory";
 import useGame from "./hooks/useGame";
+import useSound from "./hooks/useSound";
+import { useEffect } from "react";
 
 function App() {
   const game = useGame();
+  const sound = useSound();
+
+  useEffect(() => {
+    if (game.gameState === "countdown" && game.countdown !== null) {
+      if (game.countdown === 0) {
+        sound.goSound();
+      } else {
+        sound.countdownSound();
+      }
+    }
+  }, [game.gameState, game.countdown]);
+
+  useEffect(() => {
+    if (game.feedback.type === "timeout") {
+      sound.timeoutSound();
+    }
+  }, [game.feedback.type]);
+
+  useEffect(() => {
+    if (game.newHighScore) {
+      sound.newRecordSound();
+    }
+  }, [game.newHighScore]);
 
   return (
     <div className="game">
       <h1>Reaction Hunter</h1>
+
+      <button className="sound-button" onClick={sound.toggleSound}>
+        {sound.soundEnabled ? "🔊 Sound" : "🔇 Muted"}
+      </button>
 
       {/* START SCREEN */}
       {game.gameState === "ready" && (
@@ -52,8 +81,14 @@ function App() {
             position={game.position}
             targetSize={game.settings.targetSize}
             targetTime={game.targetTimeLeft}
-            onHit={game.handleHit}
-            onMiss={game.handleMiss}
+            onHit={(event) => {
+              sound.hitSound();
+              game.handleHit(event);
+            }}
+            onMiss={() => {
+              sound.missSound();
+              game.handleMiss();
+            }}
           />
         </>
       )}
@@ -61,22 +96,22 @@ function App() {
       {/* RESULTS SCREEN */}
       {game.gameState === "gameover" && (
         <>
-        <ResultsScreen
-          difficulty={game.settings.label}
-          score={game.score}
-          highScore={game.highScore}
-          accuracy={game.accuracy}
-          averageReaction={game.averageReaction}
-          bestReaction={game.bestReaction}
-          misses={game.misses}
-          rating={game.getRating()}
-          newHighScore={game.newHighScore}
-          onPlayAgain={game.startGame}
-          onChangeDifficulty={game.changeToReady}
-        />
+          <ResultsScreen
+            difficulty={game.settings.label}
+            score={game.score}
+            highScore={game.highScore}
+            accuracy={game.accuracy}
+            averageReaction={game.averageReaction}
+            bestReaction={game.bestReaction}
+            misses={game.misses}
+            rating={game.getRating()}
+            newHighScore={game.newHighScore}
+            onPlayAgain={game.startGame}
+            onChangeDifficulty={game.changeToReady}
+          />
 
-        <GameHistory history={game.gameHistory} />
-      </>
+          <GameHistory history={game.gameHistory} />
+        </>
       )}
     </div>
   );
