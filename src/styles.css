@@ -396,3 +396,38 @@ button {
     white-space: nowrap;
   }
 }
+
+.countdown-screen {
+  min-height: 500px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.countdown {
+  font-size: 100px;
+
+  font-weight: bold;
+
+  animation: countdownPop 0.9s ease;
+}
+
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

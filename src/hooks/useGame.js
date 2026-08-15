@@ -65,6 +65,8 @@ function useGame() {
     message: "",
   });
 
+  const [countdown, setCountdown] = useState(null);
+
   // High score
   const [highScores, setHighScores] = useState(() => {
     const savedScores = localStorage.getItem("reactionHunterHighScores");
@@ -116,25 +118,19 @@ function useGame() {
 
   function startGame() {
     setScore(0);
-
     setStreak(0);
-
     setMultiplier(1);
 
     setLives(settings.lives);
-
     setMisses(0);
 
     setTimeLeft(settings.time);
 
     setReactionTime(null);
-
     setReactionTimes([]);
-
     setBestReaction(null);
 
     setTargetTimeLeft(settings.targetTime);
-
     setTargetKey(0);
 
     setFeedback({
@@ -144,11 +140,11 @@ function useGame() {
 
     setNewHighScore(false);
 
+    // Prepare target but don't start the game yet
     getNewPosition();
 
-    setStartTime(Date.now());
-
-    setGameState("playing");
+    setCountdown(3);
+    setGameState("countdown");
   }
 
   // -----------------------------------
@@ -406,6 +402,42 @@ function useGame() {
     };
   }, [feedback]);
 
+  useEffect(() => {
+    if (gameState !== "countdown") {
+      return;
+    }
+
+    if (countdown === null) {
+      return;
+    }
+
+    if (countdown === 0) {
+      setGameState("playing");
+
+      setTimeLeft(settings.time);
+
+      setTargetTimeLeft(settings.targetTime);
+
+      setStartTime(Date.now());
+
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((currentCountdown) => {
+        if (currentCountdown === 1) {
+          return 0;
+        }
+
+        return currentCountdown - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [gameState, countdown, settings.time, settings.targetTime]);
+
   // -----------------------------------
   // Average reaction
   // -----------------------------------
@@ -493,6 +525,8 @@ function useGame() {
     bestReaction,
 
     averageReaction,
+
+    countdown,
 
     accuracy,
 

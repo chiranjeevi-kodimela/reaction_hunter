@@ -23,6 +23,15 @@ function App() {
         />
       )}
 
+      {/*COUNTDOWN*/}
+      {game.gameState === "countdown" && (
+        <div className="countdown-screen">
+          <div className="countdown">
+            {game.countdown === 0 ? "GO!" : game.countdown}
+          </div>
+        </div>
+      )}
+
       {/* GAME SCREEN */}
       {game.gameState === "playing" && (
         <>
