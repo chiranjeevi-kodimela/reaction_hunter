@@ -8,6 +8,7 @@ import useGame from "./hooks/useGame";
 import useSound from "./hooks/useSound";
 import { useEffect } from "react";
 import Statistics from "./components/Statistics";
+import DifficultyStats from "./components/DifficultyStats";
 
 function App() {
   const game = useGame();
@@ -114,6 +115,8 @@ function App() {
           <GameHistory history={game.gameHistory} />
 
           <Statistics statistics={game.statistics} />
+          
+          <DifficultyStats difficultyStatistics={game.difficultyStatistics} />
         </>
       )}
     </div>

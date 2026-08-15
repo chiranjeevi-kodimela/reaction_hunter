@@ -523,6 +523,94 @@ function useGame() {
         : 0,
   };
 
+  const difficultyStatistics = {
+    easy: {
+      gamesPlayed: 0,
+      totalHits: 0,
+      totalMisses: 0,
+      bestScore: 0,
+      bestStreak: 0,
+      bestReaction: null,
+      averageReaction: null,
+      averageAccuracy: 0,
+    },
+
+    medium: {
+      gamesPlayed: 0,
+      totalHits: 0,
+      totalMisses: 0,
+      bestScore: 0,
+      bestStreak: 0,
+      bestReaction: null,
+      averageReaction: null,
+      averageAccuracy: 0,
+    },
+
+    hard: {
+      gamesPlayed: 0,
+      totalHits: 0,
+      totalMisses: 0,
+      bestScore: 0,
+      bestStreak: 0,
+      bestReaction: null,
+      averageReaction: null,
+      averageAccuracy: 0,
+    },
+  };
+
+  gameHistory.forEach((game) => {
+    const level = game.difficulty.toLowerCase();
+
+    if (!difficultyStatistics[level]) {
+      return;
+    }
+
+    const stats = difficultyStatistics[level];
+
+    stats.gamesPlayed += 1;
+
+    stats.totalHits += game.hits || 0;
+
+    stats.totalMisses += game.misses || 0;
+
+    stats.bestScore = Math.max(stats.bestScore, game.score || 0);
+
+    stats.bestStreak = Math.max(stats.bestStreak, game.bestStreak || 0);
+  });
+
+  Object.keys(difficultyStatistics).forEach((level) => {
+    const games = gameHistory.filter(
+      (game) => game.difficulty.toLowerCase() === level,
+    );
+
+    if (games.length === 0) {
+      return;
+    }
+
+    const reactions = games
+      .map((game) => game.bestReaction)
+      .filter((reaction) => reaction !== null && reaction !== undefined);
+
+    difficultyStatistics[level].bestReaction =
+      reactions.length > 0 ? Math.min(...reactions) : null;
+
+    const averageReactions = games
+      .map((game) => game.averageReaction)
+      .filter((reaction) => reaction !== null && reaction !== undefined);
+
+    difficultyStatistics[level].averageReaction =
+      averageReactions.length > 0
+        ? Math.round(
+            averageReactions.reduce((total, reaction) => total + reaction, 0) /
+              averageReactions.length,
+          )
+        : null;
+
+    difficultyStatistics[level].averageAccuracy = Math.round(
+      games.reduce((total, game) => total + (game.accuracy || 0), 0) /
+        games.length,
+    );
+  });
   // -----------------------------------
   // Overall game timer
   // -----------------------------------
@@ -676,6 +764,8 @@ function useGame() {
     gameHistory,
 
     statistics,
+
+    difficultyStatistics,
 
     difficulty,
 

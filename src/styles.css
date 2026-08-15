@@ -546,3 +546,50 @@ button {
     grid-template-columns: 1fr;
   }
 }
+.difficulty-stats {
+  max-width: 900px;
+  margin: 50px auto;
+}
+
+.difficulty-stats h2 {
+  margin-bottom: 25px;
+}
+
+.difficulty-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.difficulty-card {
+  padding: 25px;
+
+  border: 1px solid #444;
+  border-radius: 12px;
+
+  background: #181818;
+}
+
+.difficulty-card h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.difficulty-card p {
+  display: flex;
+  justify-content: space-between;
+
+  margin: 12px 0;
+
+  color: #aaa;
+}
+
+.difficulty-card strong {
+  color: white;
+}
+
+@media (max-width: 700px) {
+  .difficulty-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
