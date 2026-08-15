@@ -7,6 +7,7 @@ import GameHistory from "./components/GameHistory";
 import useGame from "./hooks/useGame";
 import useSound from "./hooks/useSound";
 import { useEffect } from "react";
+import Statistics from "./components/Statistics";
 
 function App() {
   const game = useGame();
@@ -111,6 +112,8 @@ function App() {
           />
 
           <GameHistory history={game.gameHistory} />
+
+          <Statistics statistics={game.statistics} />
         </>
       )}
     </div>

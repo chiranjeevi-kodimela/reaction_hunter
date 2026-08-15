@@ -47,7 +47,12 @@ function useGame() {
 
   const [score, setScore] = useState(0);
 
+  // Number of successful target hits
+  const [hits, setHits] = useState(0);
+
   const [streak, setStreak] = useState(0);
+
+  const [bestStreak, setBestStreak] = useState(0);
 
   const [multiplier, setMultiplier] = useState(1);
 
@@ -70,7 +75,10 @@ function useGame() {
 
   const [countdown, setCountdown] = useState(null);
 
-  // High score
+  // -----------------------------------
+  // High scores
+  // -----------------------------------
+
   const [highScores, setHighScores] = useState(() => {
     const savedScores = localStorage.getItem("reactionHunterHighScores");
 
@@ -83,12 +91,15 @@ function useGame() {
         };
   });
 
-  // Whether the current game created a new record
   const [newHighScore, setNewHighScore] = useState(false);
 
   const settings = difficultySettings[difficulty];
 
   const highScore = highScores[difficulty];
+
+  // -----------------------------------
+  // Game history
+  // -----------------------------------
 
   const [resultSaved, setResultSaved] = useState(false);
 
@@ -99,7 +110,7 @@ function useGame() {
   });
 
   // -----------------------------------
-  // Generate a new target position
+  // Generate new target position
   // -----------------------------------
 
   function getNewPosition() {
@@ -152,19 +163,29 @@ function useGame() {
 
   function startGame() {
     setScore(0);
+
+    setHits(0);
+
     setStreak(0);
+
+    setBestStreak(0);
+
     setMultiplier(1);
 
     setLives(settings.lives);
+
     setMisses(0);
 
     setTimeLeft(settings.time);
 
     setReactionTime(null);
+
     setReactionTimes([]);
+
     setBestReaction(null);
 
     setTargetTimeLeft(settings.targetTime);
+
     setTargetKey(0);
 
     setFeedback({
@@ -176,10 +197,10 @@ function useGame() {
 
     setResultSaved(false);
 
-    // Prepare target but don't start the game yet
     getNewPosition();
 
     setCountdown(3);
+
     setGameState("countdown");
   }
 
@@ -200,7 +221,10 @@ function useGame() {
 
     setReactionTimes((currentTimes) => [...currentTimes, reaction]);
 
-    // Calculate score using current multiplier
+    // Count successful hit
+    setHits((currentHits) => currentHits + 1);
+
+    // Calculate score
     setScore((currentScore) => {
       const pointsEarned = settings.points * multiplier;
 
@@ -225,9 +249,12 @@ function useGame() {
       return newScore;
     });
 
-    // Update streak and multiplier
+    // Update streak
     setStreak((currentStreak) => {
       const newStreak = currentStreak + 1;
+
+      // Track best streak
+      setBestStreak((currentBest) => Math.max(currentBest, newStreak));
 
       let newMultiplier = 1;
 
@@ -248,6 +275,7 @@ function useGame() {
         });
       } else {
         const pointsEarned = settings.points * multiplier;
+
         setFeedback({
           type: "hit",
           message: `+${pointsEarned}  ${reaction} ms`,
@@ -257,12 +285,12 @@ function useGame() {
       return newStreak;
     });
 
-    // Best reaction time
+    // Best reaction
     if (bestReaction === null || reaction < bestReaction) {
       setBestReaction(reaction);
     }
 
-    // New target
+    // Generate next target
     getNewPosition();
 
     setTargetKey((currentKey) => currentKey + 1);
@@ -350,14 +378,79 @@ function useGame() {
     setStartTime(Date.now());
   }
 
+  // -----------------------------------
+  // Average reaction
+  // -----------------------------------
+
+  const averageReaction =
+    reactionTimes.length > 0
+      ? Math.round(
+          reactionTimes.reduce((total, time) => total + time, 0) /
+            reactionTimes.length,
+        )
+      : null;
+
+  // -----------------------------------
+  // Accuracy
+  // -----------------------------------
+
+  const totalAttempts = hits + misses;
+
+  const accuracy =
+    totalAttempts > 0 ? Math.round((hits / totalAttempts) * 100) : 0;
+
+  // -----------------------------------
+  // Rating
+  // -----------------------------------
+
+  function getRating() {
+    if (averageReaction === null) {
+      return "No Data";
+    }
+
+    if (averageReaction < 300 && accuracy >= 90) {
+      return "LEGENDARY";
+    }
+
+    if (averageReaction < 400 && accuracy >= 80) {
+      return "EXCELLENT";
+    }
+
+    if (averageReaction < 500 && accuracy >= 70) {
+      return "GREAT";
+    }
+
+    if (averageReaction < 700) {
+      return "GOOD";
+    }
+
+    return "KEEP PRACTICING";
+  }
+
+  // -----------------------------------
+  // Save completed game
+  // -----------------------------------
+
   function saveGameResult() {
     const result = {
       id: Date.now(),
+
       difficulty: settings.label,
+
       score,
+
+      hits,
+
+      misses,
+
       accuracy,
+
       averageReaction,
+
       bestReaction,
+
+      bestStreak,
+
       rating: getRating(),
     };
 
@@ -372,6 +465,62 @@ function useGame() {
       return updatedHistory;
     });
   }
+
+  // -----------------------------------
+  // Overall statistics
+  // -----------------------------------
+
+  const statistics = {
+    gamesPlayed: gameHistory.length,
+
+    totalHits: gameHistory.reduce((total, game) => total + (game.hits || 0), 0),
+
+    totalMisses: gameHistory.reduce(
+      (total, game) => total + (game.misses || 0),
+      0,
+    ),
+
+    bestScore:
+      gameHistory.length > 0
+        ? Math.max(...gameHistory.map((game) => game.score || 0))
+        : 0,
+
+    bestStreak:
+      gameHistory.length > 0
+        ? Math.max(...gameHistory.map((game) => game.bestStreak || 0))
+        : 0,
+
+    bestReaction:
+      gameHistory.length > 0
+        ? (() => {
+            const reactions = gameHistory
+              .map((game) => game.bestReaction)
+              .filter((value) => value !== null && value !== undefined);
+
+            return reactions.length > 0 ? Math.min(...reactions) : null;
+          })()
+        : null,
+
+    averageReaction:
+      gameHistory.length > 0
+        ? Math.round(
+            gameHistory.reduce(
+              (total, game) => total + (game.averageReaction || 0),
+              0,
+            ) / gameHistory.length,
+          )
+        : null,
+
+    averageAccuracy:
+      gameHistory.length > 0
+        ? Math.round(
+            gameHistory.reduce(
+              (total, game) => total + (game.accuracy || 0),
+              0,
+            ) / gameHistory.length,
+          )
+        : 0,
+  };
 
   // -----------------------------------
   // Overall game timer
@@ -428,7 +577,7 @@ function useGame() {
 
     setTargetTimeLeft(settings.targetTime);
 
-    const countdown = setInterval(() => {
+    const countdownTimer = setInterval(() => {
       setTargetTimeLeft((currentTime) => {
         if (currentTime <= 100) {
           return 0;
@@ -439,7 +588,7 @@ function useGame() {
     }, 100);
 
     return () => {
-      clearInterval(countdown);
+      clearInterval(countdownTimer);
     };
   }, [gameState, targetKey, difficulty]);
 
@@ -463,6 +612,10 @@ function useGame() {
       clearTimeout(timeout);
     };
   }, [feedback]);
+
+  // -----------------------------------
+  // Start countdown
+  // -----------------------------------
 
   useEffect(() => {
     if (gameState !== "countdown") {
@@ -500,61 +653,17 @@ function useGame() {
     };
   }, [gameState, countdown, settings.time, settings.targetTime]);
 
+  // -----------------------------------
+  // Save result when game ends
+  // -----------------------------------
+
   useEffect(() => {
     if (gameState === "gameover" && !resultSaved) {
       saveGameResult();
+
       setResultSaved(true);
     }
   }, [gameState, resultSaved]);
-
-  // -----------------------------------
-  // Average reaction
-  // -----------------------------------
-
-  const averageReaction =
-    reactionTimes.length > 0
-      ? Math.round(
-          reactionTimes.reduce((total, time) => total + time, 0) /
-            reactionTimes.length,
-        )
-      : null;
-
-  // -----------------------------------
-  // Accuracy
-  // -----------------------------------
-
-  const totalAttempts = score + misses;
-
-  const accuracy =
-    totalAttempts > 0 ? Math.round((score / totalAttempts) * 100) : 0;
-
-  // -----------------------------------
-  // Rating
-  // -----------------------------------
-
-  function getRating() {
-    if (averageReaction === null) {
-      return "No Data";
-    }
-
-    if (averageReaction < 300 && accuracy >= 90) {
-      return "LEGENDARY";
-    }
-
-    if (averageReaction < 400 && accuracy >= 80) {
-      return "EXCELLENT";
-    }
-
-    if (averageReaction < 500 && accuracy >= 70) {
-      return "GREAT";
-    }
-
-    if (averageReaction < 700) {
-      return "GOOD";
-    }
-
-    return "KEEP PRACTICING";
-  }
 
   // -----------------------------------
   // Return game data
@@ -564,6 +673,8 @@ function useGame() {
     gameState,
 
     gameHistory,
+
+    statistics,
 
     difficulty,
 
@@ -575,6 +686,8 @@ function useGame() {
 
     score,
 
+    hits,
+
     highScore,
 
     highScores,
@@ -582,6 +695,8 @@ function useGame() {
     newHighScore,
 
     streak,
+
+    bestStreak,
 
     multiplier,
 
@@ -612,6 +727,8 @@ function useGame() {
     handleHit,
 
     handleMiss,
+
+    handleTargetTimeout,
 
     changeToReady: () => {
       setGameState("ready");
