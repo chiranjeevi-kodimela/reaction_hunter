@@ -92,17 +92,49 @@ function useGame() {
   // -----------------------------------
 
   function getNewPosition() {
-    const targetSize = settings.targetSize;
+  const targetSize = settings.targetSize;
 
-    const newTop = Math.floor(Math.random() * (500 - targetSize));
+  const gameWidth = 800;
+  const gameHeight = 500;
 
-    const newLeft = Math.floor(Math.random() * (800 - targetSize));
+  const minDistance = 150;
 
-    setPosition({
-      top: newTop,
-      left: newLeft,
-    });
-  }
+  let newTop;
+  let newLeft;
+
+  let attempts = 0;
+
+  do {
+    newTop = Math.floor(
+      Math.random() *
+        (gameHeight - targetSize)
+    );
+
+    newLeft = Math.floor(
+      Math.random() *
+        (gameWidth - targetSize)
+    );
+
+    attempts++;
+
+    const distance = Math.sqrt(
+      Math.pow(newLeft - position.left, 2) +
+        Math.pow(newTop - position.top, 2)
+    );
+
+    if (
+      distance >= minDistance ||
+      attempts >= 20
+    ) {
+      break;
+    }
+  } while (true);
+
+  setPosition({
+    top: newTop,
+    left: newLeft,
+  });
+}
 
   // -----------------------------------
   // Difficulty
