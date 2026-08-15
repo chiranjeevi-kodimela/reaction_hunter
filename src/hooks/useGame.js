@@ -7,6 +7,7 @@ const difficultySettings = {
     lives: 5,
     time: 30,
     targetTime: 2500,
+    points: 1,
   },
 
   medium: {
@@ -15,6 +16,7 @@ const difficultySettings = {
     lives: 3,
     time: 30,
     targetTime: 2000,
+    points: 2,
   },
 
   hard: {
@@ -23,6 +25,7 @@ const difficultySettings = {
     lives: 2,
     time: 30,
     targetTime: 1500,
+    points: 3,
   },
 };
 
@@ -92,49 +95,40 @@ function useGame() {
   // -----------------------------------
 
   function getNewPosition() {
-  const targetSize = settings.targetSize;
+    const targetSize = settings.targetSize;
 
-  const gameWidth = 800;
-  const gameHeight = 500;
+    const gameWidth = 800;
+    const gameHeight = 500;
 
-  const minDistance = 150;
+    const minDistance = 150;
 
-  let newTop;
-  let newLeft;
+    let newTop;
+    let newLeft;
 
-  let attempts = 0;
+    let attempts = 0;
 
-  do {
-    newTop = Math.floor(
-      Math.random() *
-        (gameHeight - targetSize)
-    );
+    do {
+      newTop = Math.floor(Math.random() * (gameHeight - targetSize));
 
-    newLeft = Math.floor(
-      Math.random() *
-        (gameWidth - targetSize)
-    );
+      newLeft = Math.floor(Math.random() * (gameWidth - targetSize));
 
-    attempts++;
+      attempts++;
 
-    const distance = Math.sqrt(
-      Math.pow(newLeft - position.left, 2) +
-        Math.pow(newTop - position.top, 2)
-    );
+      const distance = Math.sqrt(
+        Math.pow(newLeft - position.left, 2) +
+          Math.pow(newTop - position.top, 2),
+      );
 
-    if (
-      distance >= minDistance ||
-      attempts >= 20
-    ) {
-      break;
-    }
-  } while (true);
+      if (distance >= minDistance || attempts >= 20) {
+        break;
+      }
+    } while (true);
 
-  setPosition({
-    top: newTop,
-    left: newLeft,
-  });
-}
+    setPosition({
+      top: newTop,
+      left: newLeft,
+    });
+  }
 
   // -----------------------------------
   // Difficulty
@@ -198,7 +192,9 @@ function useGame() {
 
     // Calculate score using current multiplier
     setScore((currentScore) => {
-      const newScore = currentScore + multiplier;
+      const pointsEarned = settings.points * multiplier;
+
+      const newScore = currentScore + pointsEarned;
 
       if (newScore > highScore) {
         const updatedHighScores = {
@@ -241,9 +237,10 @@ function useGame() {
           message: `${newStreak} HIT STREAK! ×${newMultiplier}`,
         });
       } else {
+        const pointsEarned = settings.points * multiplier;
         setFeedback({
           type: "hit",
-          message: `+${multiplier}  ${reaction} ms`,
+          message: `+${pointsEarned}  ${reaction} ms`,
         });
       }
 
